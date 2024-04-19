@@ -34,23 +34,20 @@ const getBeaconInfoResponse = async function(req){
 
   }
 
-  return JSON.stringify( infoDoc )
+  return infoDoc 
   
 }
 
 const beaconInfoResponseRouteHandler = async function( req, res ){
-	if(req.method == "get"){
     return res.response( await getBeaconInfoResponse(req) )
-  }else{  
-    //post?
-    // updateDB
-    return res.response( {} )
-  }
 }
 
 const beaconInfoResponseRoute = { 
       method:  ['GET','POST'],
       path:    '/info',
+      options: {
+        auth: 'basic'
+      },
       handler: beaconInfoResponseRouteHandler
 }
 

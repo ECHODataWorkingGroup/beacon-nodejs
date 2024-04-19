@@ -3,10 +3,22 @@
 </script>
 
 <template>
+  <router-link to="/auth/login">Login</router-link>
+  <router-view name="AuthLogin"></router-view>
   <nav>
     <router-link to="/">BeaconRoot</router-link> |
     <router-link to="/info">BeaconInfo</router-link> |
-    <router-link to="/models">Models</router-link>
+    <router-link to="/models">Models</router-link> |
+    <router-link to="/auth/scope">AuthScope</router-link>
+
+<Suspense>
+<router-view name="AuthScope" v-slot="{ Component }">
+  <keep-alive>
+    <component :is="Component" />
+  </keep-alive>
+</router-view>
+</Suspense>
+
   </nav>
 
 <Suspense>
@@ -26,11 +38,11 @@
 
 <style>
 
-  body { 
-    background-color: #0f0f0f; 
+  body {
+    background-color: #0f0f0f;
     color: #f0f0ff;
   }
- 
+
 div {
     color: #2c3e50;
 }

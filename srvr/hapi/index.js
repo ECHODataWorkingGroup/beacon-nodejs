@@ -10,14 +10,25 @@ const __dirname = Path.dirname(fileURLToPath(import.meta.url));
 
 const hbsrv= new Hapi.Server({
   port: 9001,
-  // host: 'localhost',
   host: '0.0.0.0',
   tls: {
     key:  fs.readFileSync(__dirname + '/tls/server-key.pem'),
     cert: fs.readFileSync(__dirname + '/tls/server-cert.pem'),
   },
   routes: {
-    cors: true,
+    cors: {
+      origin: [ 'https://localhost:9001', 'https://localhost:8080' ],
+      maxAge: 86400,
+      headers: [ 'Accept', 'Authorization', 'Content-Type', 'If-None-Match' ],
+      additionalHeaders: [ 'WWW-Authenticate' ],
+      exposedHeaders: [ 'WWW-Authenticate', 'Server-Authorization' ],
+      additionalExposedHeaders: [ 'Authorization' ],
+      credentials: false,
+    }
+  },
+  router: { 
+    isCaseSensitive: true, 
+    stripTrailingSlash: true 
   },
   debug: { request: ['*'] }
 })
