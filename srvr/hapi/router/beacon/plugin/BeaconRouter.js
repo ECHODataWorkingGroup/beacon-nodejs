@@ -6,6 +6,7 @@ import mongoose from 'mongoose'
 import HapiAutoRoute from 'hapi-auto-route'
 import Path from 'path'
 import * as dotenv from 'dotenv'
+import Inert from '@hapi/inert'
 
 import { fileURLToPath } from 'url';
 const __dirname = Path.dirname(fileURLToPath(import.meta.url));
@@ -14,6 +15,8 @@ import { rootRoute }                        from '../endpoints/root.js'
 import { beaconInfoResponseRoute }          from '../endpoints/info/index.js'
 import { beaconConfigurationResponseRoute } from '../endpoints/configuration/index.js' 
 import { beaconGenomicVariationsRoute }     from '../endpoints/models/genomicVariations/index.js'
+
+import { initGenomicVariationsModel } from '../endpoints/models/genomicVariations/init.js'
 
 const BeaconRouter = {
 
@@ -31,48 +34,45 @@ const BeaconRouter = {
 
     // using dotenv whilst open-sourcing this first attempt
     dotenv.config({ path: __dirname + "/.env" })
+
+    // probs switch to BNJS_MDB_URI
     const mdbHost   = process.env.mdbHost
     const mdbPort   = process.env.mdbPort
     const mdbDbName = process.env.mdbDbName 
 
+    const mdbUser = process.env.mdbUser ?? ""
+    const mdbPass = process.env.mdbPass ? `:${process.env.mdbPass}@` : ""
+
+    const mdbCreds = `${mdbUser}${mdbPass}`
+
     try {
-      const mdb = await mongoose.connect(`mongodb://${mdbHost}:${mdbPort}/${mdbDbName}?directConnection=true`, mdbOptions)
+
+      // try and establish a db connection
+      const mdb = await mongoose.connect(`mongodb://${mdbCreds}${mdbHost}:${mdbPort}/${mdbDbName}?directConnection=true`, mdbOptions)
+
+      // build collections from models
+      initGenomicVariationsModel(mdb) 
+
+      //global database connection
       server.expose('mdb', mdb )
+
     }catch(err){
       console.log("ERROR_DB:", err)
       throw("...aaaAAAARRRRGH")
     }
     
-
-
     // sub-plugin called after mdb instance, but before routes, can use existing connection; lazy
     await server.register(BeaconAuth)
+    await server.register(Inert)
 
-    server.route( rootRoute )
+    // serve up the routes  
     server.route( beaconInfoResponseRoute )
     server.route( beaconConfigurationResponseRoute )
     server.route( beaconGenomicVariationsRoute )
+    server.route( rootRoute )
 
-    // catchall -- pending tidyup ;)
-    server.route({
-      method:  ['GET'],
-      path:    '/{path*}',
-      handler: function( req, res ) {
-
-        // separate path -- make use of @hapi/inert 
-        if (req.path == "/favicon.ico"){
-          // return res.response("icon")
-          return res.response()
-          .type('image/x-icon')
-          .code(StatusCode.SuccessNoContent);
-        }
-
-        return Boom.notAcceptable('You have offended this api server! ' + req.path);
-      }
-    })
 
   } // register
 }; // plugin
-
 
 export { BeaconRouter }

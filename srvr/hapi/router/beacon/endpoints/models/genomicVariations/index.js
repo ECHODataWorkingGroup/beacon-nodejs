@@ -1,6 +1,7 @@
 import mongoose from 'mongoose'
 import Joi from 'joi'
 import * as Hoek from '@hapi/hoek'
+import Boom from '@hapi/boom'
 
 import { beaconGenomicVariationsSchema } from '../../../../../../../schema/mongoose/beacon/models/genomicVariations/defaultSchema.js'
 
@@ -9,7 +10,7 @@ const beaconConfig = {
         // maxGranularity: 'boolean',
         // maxGranularity: 'count',
         maxGranularity: 'record',
-        maxResultsLimit: 10
+        maxResultsLimit: Number.MAX_SAFE_INTEGER // refactor when you hit BigInt ;)
       }
 
 const enumBeaconGranularities = {
@@ -31,7 +32,7 @@ const genomicVariationsParamsPayload = Joi.object({
   geneId:                     Joi.string(),
   genomicAlleleShortForm:     Joi.string(),
   includeResultsetResponses:  Joi.string().valid( 'ALL', 'HIT', 'MISS', 'NONE' ),
-  limit:                      Joi.number().integer().min( 0 ).default( 10 ).max( beaconConfig.maxResultsLimit ).failover( beaconConfig.maxResultsLimit ),
+  limit:                      Joi.number().integer().min( 0 ).max( beaconConfig.maxResultsLimit ), //.messages({ 'number.max': 'foo'}),
   mateName:                   Joi.string(),
   referenceBases:             Joi.string().pattern( /^([ACGTUNRYSWKMBDHV\-\.]*)$/ ),
   referenceName:              Joi.string(),
@@ -42,7 +43,7 @@ const genomicVariationsParamsPayload = Joi.object({
   variantMinLength:           Joi.number().integer().min( 0 ),
   variantType:                Joi.string()
 
-})
+}).label('genomicVariationsEndpointParameters')
 
 
 const genomicVariationsPostParamsPayload = Joi.object({
@@ -82,7 +83,7 @@ const parseRequestParams = function( req ){
     if( req.method == "get" ){
       retParams.orig = Hoek.reach(req, 'query', { default: {} })
 
-      // GET doesn't define a requestedGranularity so we must set a default
+      // GET doesn't define requestedGranularity so we must set a default
       retParams.orig.requestedGranularity = 'boolean'
 
       // clone
@@ -101,12 +102,7 @@ const getBeaconGenomicVariations = async function( req, reqParams ){
 
   // use existing mongoose / mongodb connection
   const mdb = req.server.plugins.BeaconRouter.mdb
-
   var beaconGenomicVariationsModel = mdb.models['beaconGenomicVariationsModel']
-  // move to top-lvl; i.e., register the models at srvr startup
-  if ( ! beaconGenomicVariationsModel ){
-    beaconGenomicVariationsModel = mdb.model('beaconGenomicVariationsModel', beaconGenomicVariationsSchema, beaconGenomicVariationsSchema.options.collection)
-  }
 
   // todo: make function + sort out variable passing for reqParams
   var requestedGranularity = enumBeaconGranularities[reqParams.requestedGranularity]
@@ -141,12 +137,28 @@ const getBeaconGenomicVariations = async function( req, reqParams ){
     case 'record':
       genomicVariationsQuery = beaconGenomicVariationsModel.find( queryFilter )
       genomicVariationsQuery.select( publicFieldsProjection )
-      genomicVariationsQuery.limit( reqParams.limit )
+
+      // request limitation
+      const maxLimit = beaconConfig.maxResultsLimit
+      var   reqLimit = reqParams.limit
+
+      // if requested by user
+      if ( typeof reqLimit === 'number' ){
+
+        // enforce maxResultsLimit
+        if ( reqLimit == 0 || reqLimit > maxLimit ) {
+          reqLimit = maxLimit
+        }
+
+        genomicVariationsQuery.limit( reqLimit )
+
+      }
       break
   }
 
   const gVariants = await genomicVariationsQuery.exec()
   // if( beaconConfig.strictMode ){ // Query.exec().cursor().asyncEach( doc.validate() ) }
+  // need to wrap the results in their appropriate "object"
   return gVariants
 
 }
@@ -189,7 +201,14 @@ const beaconGenomicVariationsRoute = [
         options: {
           auth: 'basic',
           validate: {
-            payload: genomicVariationsPostParamsPayload
+            payload: genomicVariationsPostParamsPayload,
+            options: {
+              abortEarly: false
+            },
+            failAction: async function (req, res, err) {
+              // return informative errors in relation to paramater validation
+              return Boom.conflict(err)
+            }
           }
         },
         handler: beaconGenomicVariationsRouteHandler

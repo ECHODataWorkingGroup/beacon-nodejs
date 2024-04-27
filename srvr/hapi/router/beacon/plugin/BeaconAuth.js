@@ -42,15 +42,20 @@ const BeaconAuth = {
       // Guinness...good things, etc...
       if( await authValidateUser( authData, user, pass ) ) {
 
-          const jwt = HapiJwt.token.generate(
+
+          const retCreds = 
                 {
                     user: user,
                     aud: jwtClaims.aud,
                     iss: jwtClaims.iss,
                     sub: jwtClaims.sub,
                     scope: authDb.users[0].jwt.scope,
-                    group: 'bioinfos'
-                },
+                    group: 'bioinfos',
+                    beaconConfig: { allowedGranularities: authDb.users[0].beaconConfig.allowedGranularities }
+                }
+
+          const jwt = HapiJwt.token.generate(
+                retCreds,
                 {
                     key: authDb.users[0].jwt.key,
                     algorithms: authDb.users[0].jwt.algorithms
@@ -60,14 +65,19 @@ const BeaconAuth = {
                 }
             )
 
-          return { isValid: true, credentials: { jwt: jwt } }
+          return { isValid: true, 
+                   credentials: { 
+                     authZData: retCreds,
+                     msg: "Auth Success!",
+                     jwt: jwt,
+                   } 
+                 } 
 
         }
 
       return { isValid: false }
 
     }
-
 
     const validateJwt = async function(art,req,res){
       // happens post token decode; we can do AuthZ (aka payload validation) here.
@@ -92,7 +102,7 @@ const BeaconAuth = {
                                          validate: validateJwt })    //server.auth.default('basic')
 
     const authLoginPayload = Joi.object({
-                                          user:  Joi.string().min(4).max(9).required(),
+                                          user:  Joi.string().min(4).max(9).required(), //.messages({ 'string.pattern.base': 'Error: Bad username or password'  }),
                                           // pass:  Joi.string().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')),
                                           pass:  Joi.string().pattern(/^foo$/).required().messages({ 'string.pattern.base': 'Error: Bad username or password'}) //|[^0-9]*|[^A-Z]*|[^a-z]*|[a-zA-Z0-9]*)$/,{invert: true}).required().messages({ 'string.pattern.invert.base': 'Error: Bad username or password'})
           }).label("auth-login-payload")
@@ -104,6 +114,14 @@ const BeaconAuth = {
                                                  }).required()
                                         }).label("auth-signup-payload")
     // console.log(authSignUpPayload.validate({ user: "foob", pass: "foo", email: "foo@dev.null" }))
+
+const authorizationCorsHeaders = function( req, res ) {
+        const r = res.response()
+        r.header('Access-Control-Allow-Headers', 'Accept,Authorization,Content-Type,If-None-Match')
+        r.header('Access-Control-Allow-Methods', 'POST,GET')
+        r.code(204)
+        return r
+      }
 
     server.route({
       method:  ['POST'],
@@ -143,13 +161,7 @@ const BeaconAuth = {
         auth: false
       },
       path: '/auth/login',
-      handler: function( req, res ) {
-        const r = res.response()
-        r.header('Access-Control-Allow-Headers', 'Accept,Authorization,Content-Type,If-None-Match')
-        r.header('Access-Control-Allow-Methods', 'POST,GET')
-        r.code(204)
-        return r
-      }
+      handler: authorizationCorsHeaders
     })
 
     server.route({
@@ -166,8 +178,23 @@ const BeaconAuth = {
        },
       handler: function( req, res ) {
           //console.log("aL.rac: ", req.auth.credentials)
-          return res.response({ access_token: req.auth.credentials.jwt, token_type: 'Bearer' })
+          // return res.response({ access_token: req.auth.credentials.jwt, token_type: 'Bearer' })
+          return res.response( { authResponse: req.auth.credentials } )
       }
+    })
+
+    // fixes CORS pre-flight checks in firefox
+    // possible bug with hapi-basic + hapi-cors interaction?
+    server.route({
+      method: [ 'options' ],
+      options: {
+        auth: {
+          strategies: ['basic', 'jwt'],
+          mode: 'optional'
+        }
+      },
+      path: '/auth/scope',
+      handler: authorizationCorsHeaders
     })
 
     server.route({

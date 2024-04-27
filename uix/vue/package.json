@@ -15,6 +15,7 @@
     "json-editor-vue": "^0.6.6",
     "mongoose": "^6.3.8",
     "qs": "^6.11.0",
+    "status-code-enum": "^1.0.0",
     "vanilla-jsoneditor": "^0.7.9",
     "vue": "^3.2.13",
     "vue-router": "^4.0.3"
@@ -29,5 +30,5 @@
     "eslint": "^7.32.0",
     "eslint-plugin-vue": "^8.0.3"
   },
-  "packageManager": "yarn@3.2.1"
+  "packageManager": "yarn@1.22.1"
 }
