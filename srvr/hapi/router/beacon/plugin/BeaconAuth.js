@@ -1,11 +1,12 @@
-import HapiBasic from '@hapi/basic'
-import HapiJwt from '@hapi/jwt'
 import * as Hoek from '@hapi/hoek'
+import HapiJwt from '@hapi/jwt'
 import Boom from '@hapi/boom'
 import Joi from 'joi'
 import { StatusCode } from 'status-code-enum'
 import Path from 'path'
 import {inspect} from 'util'
+
+import { initAuthUsersModel } from '../endpoints/auth/init.js'
 
 // incremental steps toward db integration...
 import { authDb, authFetchCreds, authValidateUser } from './utils/authDb.js' 
@@ -17,7 +18,7 @@ const BeaconAuth = {
 
   pkg: {
     name: 'BeaconAuth',
-    version: '0.2.1'
+    version: '0.3.0'
   },
 
   register: async function (server, options) {
@@ -25,9 +26,21 @@ const BeaconAuth = {
     // register this plugin
     console.log("Registering: BeaconAuth")
 
-    // register hapi basic auth plugin, and/or others perhaps, depending on node.ENV / config, etc...
-    await server.register(HapiBasic)
-    await server.register(HapiJwt)
+    server.dependency('BeaconMongo')
+    server.dependency('@hapi/basic')
+    server.dependency('@hapi/jwt')
+
+    const mdb = server.plugins.BeaconMongo.mdb
+    try {
+
+      initAuthUsersModel(mdb)
+
+    } catch( err ){
+
+      console.log( err )  
+      // throw("BeaconAuth: A serious misconfiguration or db error: ", err )
+
+    }
 
     const jwtClaims = {
       aud: 'urn:audience:bioinfo',
@@ -38,7 +51,7 @@ const BeaconAuth = {
     const validateCreds = async (req, user, pass, res) => {
 
       // server knows best...
-      const authData = authFetchCreds( server, user )
+      const authData = await authFetchCreds( server, user )
       // Guinness...good things, etc...
       if( await authValidateUser( authData, user, pass ) ) {
 
@@ -49,16 +62,16 @@ const BeaconAuth = {
                     aud: jwtClaims.aud,
                     iss: jwtClaims.iss,
                     sub: jwtClaims.sub,
-                    scope: authDb.users[0].jwt.scope,
+                    scope: authData.jwt.scope,
                     group: 'bioinfos',
-                    beaconConfig: { allowedGranularities: authDb.users[0].beaconConfig.allowedGranularities }
+                    beaconConfig: { allowedGranularities: authData.beaconConfig.allowedGranularities }
                 }
 
           const jwt = HapiJwt.token.generate(
                 retCreds,
                 {
-                    key: authDb.users[0].jwt.key,
-                    algorithms: authDb.users[0].jwt.algorithms
+                    key: authData.jwt.key,
+                    algorithms: authData.jwt.algorithms
                 },
                 {
                     ttlSec: 3*3600 // 3-hours should be enough for anybody...
@@ -89,7 +102,6 @@ const BeaconAuth = {
     // we have to compile an array of enabled accounts:
     const validJwtKeys = authDb.users.map( (user) => { if (user.enabled) { return { key: user.jwt.key, algorithms: user.jwt.algorithms, kid: `${user.uid}` } } } )
     validJwtKeys.push({ key: 'foo', algorithms: ['HS512'], kid: 'hostJwtKid' })
-    console.log(validJwtKeys)
 
     server.auth.strategy('basic', 'basic', { validate: validateCreds })
     server.auth.strategy('jwt', 'jwt', { keys: validJwtKeys,

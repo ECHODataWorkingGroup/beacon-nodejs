@@ -1,10 +1,15 @@
 import Hapi from '@hapi/hapi';
+import HapiBasic from '@hapi/basic'
+import HapiJwt from '@hapi/jwt'
+import HapiInert from '@hapi/inert'
 import Path from 'path'
 import fs from 'fs'
 
 import { fileURLToPath, parse } from 'url';
 const __dirname = Path.dirname(fileURLToPath(import.meta.url));
 
+import { BeaconMongo  } from './router/beacon/plugin/BeaconMongo.js'
+import { BeaconAuth   } from './router/beacon/plugin/BeaconAuth.js'
 import { BeaconRouter } from './router/beacon/plugin/BeaconRouter.js'
 
 import * as dotenv from 'dotenv'
@@ -49,14 +54,24 @@ const hbsrv= new Hapi.Server({
   debug: { request: ['*'] }
 })
 
+// useful; perhaps make optional
+hbsrv.events.on('route', (r) => { console.log(`  routeAdded: (${r.method}) -> ${r.path}` ) } )
+
 const crank = async () => {
 
-  await hbsrv.register({
-    plugin: BeaconRouter,
-  });
+  // register plugins
+  await hbsrv.register([
+    HapiBasic,   // '@hapi/basic'
+    HapiJwt,     // '@hapi/jwt'
+    HapiInert,   // '@hapi/inert'
+    BeaconMongo,
+    BeaconAuth,
+    BeaconRouter,
+  ])
 
+  // spin-up
   await hbsrv.start();
-  console.log('Server running on %s', hbsrv.info.uri);
+  console.log('Server running on %s', hbsrv.info.uri)
 
 }
 
