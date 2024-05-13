@@ -26,16 +26,10 @@ const beaconApiProto = beaconApiUrl.protocol.slice(0,-1)
 
 const corsOrigins = process.env.BNJS_API_CORS_ORIGINS ? process.env.BNJS_API_CORS_ORIGINS.split(',') : [ 'https://localhost:8080' ]
 
-// console.log( "corsOrigins: ", JSON.stringify(corsOrigins) )
-// console.log( `${beaconApiProto}://${beaconApiHost}:${beaconApiPort}` )
+const beaconSrvrOptions = {
 
-const hbsrv= new Hapi.Server({
   port: beaconApiPort,
   host: beaconApiHost,
-  tls: {
-    key:  fs.readFileSync(__dirname + '/tls/server-key.pem'),
-    cert: fs.readFileSync(__dirname + '/tls/server-cert.pem'),
-  },
   routes: {
     cors: {
       origin: corsOrigins,
@@ -52,7 +46,20 @@ const hbsrv= new Hapi.Server({
     stripTrailingSlash: true
   },
   debug: { request: ['*'] }
-})
+
+}
+
+// add tls config options if URL specifies https protocol
+if( beaconApiProto == 'https' ){
+  Object.assign( beaconSrvrOptions, { 
+    tls: {
+      key:  fs.readFileSync(__dirname + '/tls/server-key.pem'),
+      cert: fs.readFileSync(__dirname + '/tls/server-cert.pem'),
+    } 
+   }) 
+}
+
+const hbsrv = new Hapi.Server( beaconSrvrOptions )
 
 // useful; perhaps make optional
 hbsrv.events.on('route', (r) => { console.log(`  routeAdded: (${r.method}) -> ${r.path}` ) } )
@@ -81,4 +88,3 @@ process.on('unhandledRejection', (err) => {
 
 /* crank up the server */
 crank();
-
