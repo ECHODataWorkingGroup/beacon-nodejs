@@ -12,8 +12,9 @@
     src: local('../assets/font-montserrat-thin.woff2') format("woff2"); 
   }
 
-  h2 {
-    color: #42b983;
+  * {
+    font-family: 'montserrat';
+    font-weight: 700;
   }
 
   .center {
