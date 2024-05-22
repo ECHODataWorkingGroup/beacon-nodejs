@@ -1,37 +1,20 @@
 <script setup>
-  import AxiosSpinner from '@/components/AxiosSpinner.vue'
 </script>
 
 <template>
-  <router-link to="/auth/login">Login</router-link>
-  <router-view name="AuthLogin"></router-view>
   <nav>
-    <router-link to="/">BeaconRoot</router-link> |
-    <router-link to="/info">BeaconInfo</router-link> |
-    <router-link to="/models">Models</router-link> |
-    <router-link to="/auth/scope">AuthScope</router-link>
-
-<Suspense>
-<router-view name="AuthScope" v-slot="{ Component }">
-  <keep-alive>
-    <component :is="Component" />
-  </keep-alive>
-</router-view>
-</Suspense>
-
+    <!-- <div v-if="!hasAuthed"> -->
+    <!-- <div v-else> -->
+    <!-- </div> -->
+    <router-link :to="{ name: 'authLogin' }">Login</router-link> |
+    <router-link :to="{ name: 'getBeaconRoot' }">Home</router-link> |
+    <router-link :to="{ name: 'getBeaconInfoRoute' }">BeaconInfo</router-link> |
+    <router-link :to="{ name: 'getBeaconModels' }">Models</router-link>
   </nav>
 
 <Suspense>
-  <template #default>
-    <router-view v-slot="{ Component }">
-      <keep-alive>
-        <component :is="Component" />
-      </keep-alive>
-    </router-view>
-  </template>
-  <template #fallback>
-    <AxiosSpinner />
-  </template>
+  <router-view>
+  </router-view>
 </Suspense>
 
 </template>
