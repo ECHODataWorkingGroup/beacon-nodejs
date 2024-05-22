@@ -1,4 +1,7 @@
 <script setup>
+  import colstr from '../components/ColorString.vue'
+  // GreyBlue, Brick, Pale Gold, Sick Green
+  const colArr = [ '#84bcc9', '#b5472f', '#e6cd56', '#a3bd31' ]
 
 </script>
 
