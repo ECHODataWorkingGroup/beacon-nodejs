@@ -37,21 +37,29 @@
 </template>
 
 <style>
+  
+  @font-face {
+    font-family: 'montserrat';
+    src: local('../assets/font-montserrat-thin.woff2') format("woff2"); 
+  }
+
 
   body {
     background-color: #0f0f0f;
-    color: #f0f0ff;
+    /* color: #f0f0ff; */
+    color: #84bcc9;
+    font-family: 'montserrat', Helvetica, Arial, sans-serif;
+    font-weight: 700;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
 div {
-    color: #2c3e50;
+    color: #84bcc9;
 }
 
 
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 /*  text-align: center; */
   color: #2c3e50;
 }

@@ -1,22 +1,12 @@
 <script setup>
   import colstr from '../components/ColorString.vue'
+
   // GreyBlue, Brick, Pale Gold, Sick Green
   const colArr = [ '#84bcc9', '#b5472f', '#e6cd56', '#a3bd31' ]
 
 </script>
 
 <style scoped>
-  
-  @font-face {
-    font-family: 'montserrat';
-    src: local('../assets/font-montserrat-thin.woff2') format("woff2"); 
-  }
-
-  * {
-    font-family: 'montserrat';
-    font-weight: 700;
-  }
-
   .center {
     text-align: center;
   } 
