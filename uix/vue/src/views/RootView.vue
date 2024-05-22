@@ -6,8 +6,10 @@
 </script>
 
 <style scoped>
-  * { 
-      color: #2c3e50;
+  
+  @font-face {
+    font-family: 'montserrat';
+    src: local('../assets/font-montserrat-thin.woff2') format("woff2"); 
   }
 
   h2 {
