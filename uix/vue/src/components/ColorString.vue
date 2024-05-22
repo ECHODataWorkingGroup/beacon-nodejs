@@ -1,8 +1,12 @@
 <script setup>
 
   import { ref, defineProps } from 'vue'
+
   const props = defineProps({
-    colArr: Array,
+    colArr: {
+      type: Array,
+      default: new Array( '#84bcc9', '#b5472f', '#e6cd56', '#a3bd31' )
+    },
     tehString: String
   })
 
