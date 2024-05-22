@@ -14,8 +14,9 @@
 
 <template>
   <div class="center">
-    <h3>Hello! Intrepid BioInfo-type person!</h3>
-    <h2>This is the</h2><colstr :colArr="colArr" tehString="ECHO"/><h2> (v2) Landing Page.</h2>
+    <h3>Hello There!</h3>
+    <h2>This is the</h2><colstr teh-string="ECHO"/>
+    <h2>Beacon (v2) Landing Page.</h2>
   </div>
 <p class="center">It's probably the case you want to be calling this API via programatic means, 
     rather than browsing it on the web...try: curl -XPOST ...</p>
