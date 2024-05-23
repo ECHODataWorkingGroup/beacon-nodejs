@@ -22,10 +22,28 @@
 
 <template>
   <div class="center">
-    <h3>Hello There!</h3>
-    <h2>This is the</h2><colstr teh-string="ECHO"/>
-    <h2>Beacon (v2) Landing Page.</h2>
-  </div>
-<p class="center">It's probably the case you want to be calling this API via programatic means, 
-    rather than browsing it on the web...try: curl -XPOST ...</p>
+    <p>Hello There!</p>
+    <p>You have found a Beacon of Genomic Variations!</p>
+    This particular instance is curated by the
+      <a href="https://www.sjdhospitalbarcelona.org/en">
+        <colstr :colArr="sjdColors" teh-string="SJD"/>
+      </a> Children's Hospital, located in Barcelona.
+
+    <p> It is part of the
+      <a href="https://www.echohospitals.org/">
+        <colstr teh-string="ECHO"/>
+      </a> Hospitals Network.
+    </p>
+
+    <p>Please <router-link :to="{ name: 'authLogin' }">Login</router-link> to begin.</p>
+    <div class="subscript">
+    Based on the
+      <a href="https://www.ga4gh.org/product/beacon-api/">
+       <colstr :colArr="ga4ghColors" teh-string="GA4GH"/>
+      </a> Beacon (v2) Specification<br/>and
+      <a href="https://github.com/EGA-archive/beacon2-ri-api">
+        <colstr :colArr="egaColors" teh-string="EGA"/>
+      </a> Reference Implementation.
+    </div>
+</div>
 </template>
