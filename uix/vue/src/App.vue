@@ -13,7 +13,7 @@
   </nav>
 
 <Suspense>
-  <router-view>
+  <router-view id="app-view">
   </router-view>
 </Suspense>
 
@@ -52,37 +52,45 @@
     --color-dark-lilac: #9f7ab0;
   }
 
-  body {
-    background-color: #0f0f0f;
-    /* color: #f0f0ff; */
-    color: #84bcc9;
+  body, #app {
+    background-color: var(--color-almost-black);
+    color:            var(--color-pale-grey);
     font-family: 'montserrat', Helvetica, Arial, sans-serif;
     font-weight: 700;
+    font-size: 24px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
-div {
-    color: #84bcc9;
-}
+  @media (max-width: 960px) {
+    #app-view {
+      max-width: 88%;
+      font-size: 74%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  }
 
-
-#app {
-/*  text-align: center; */
-  color: #2c3e50;
-}
+  @media (min-width: 960px) {
+    #app-view {
+      max-width: 45%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  }
 
 nav {
-  padding: 30px;
+  padding: 24px;
   text-align: center;
 }
 
-nav a {
+a {
   font-weight: bold;
-  color: #2c3e50;
+  color: var(--color-dark-grey-blue);
 }
 
-nav a.router-link-exact-active {
-  color: #42b983;
+a.router-link-exact-active {
+  /* color: var(--color-ice-blue); */
+color:            var(--color-pale-grey);
 }
 </style>
