@@ -12,7 +12,12 @@
 
   .center {
     text-align: center;
-  } 
+  }
+
+  .subscript {
+    font-size: 54%;
+  }
+
 </style>
 
 <template>
