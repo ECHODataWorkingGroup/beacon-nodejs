@@ -8,8 +8,8 @@
   const egaColors  = [ '#185177', '#5e9cc3', '#eb9662', '#f6c75e' ]
 
 </script>
-
 <style scoped>
+
   .center {
     text-align: center;
   } 
