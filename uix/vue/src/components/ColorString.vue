@@ -10,7 +10,6 @@
     tehString: String
   })
 
-  console.log(props)
   const applyCssToString = function(){
 
     const skipChars = " "
