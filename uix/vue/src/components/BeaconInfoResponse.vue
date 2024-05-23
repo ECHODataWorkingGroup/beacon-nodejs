@@ -35,13 +35,14 @@
 
 </script>
 
-<style>
+<style scoped>
+
   .horiz {
     display: flex;
   }
 
-  div,pre { color: #42b983; }
   @import '../assets/jse-theme-dark.css'
+
 </style>
 
 <template>
