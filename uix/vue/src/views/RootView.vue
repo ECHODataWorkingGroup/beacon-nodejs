@@ -2,7 +2,10 @@
   import colstr from '../components/ColorString.vue'
 
   // GreyBlue, Brick, Pale Gold, Sick Green
-  const colArr = [ '#84bcc9', '#b5472f', '#e6cd56', '#a3bd31' ]
+  const echoColors = [ '#84bcc9', '#b5472f', '#e6cd56', '#a3bd31' ]
+  const sjdColors  = [ '#ff0000', '#942682', '#ec6500' ]
+  const ga4ghColors = [ '#4faedc', '#1b75bb', '#8bc53f', '#f9a533', '#e34a3b', '#9f7ab0' ]
+  const egaColors  = [ '#185177', '#5e9cc3', '#eb9662', '#f6c75e' ]
 
 </script>
 
