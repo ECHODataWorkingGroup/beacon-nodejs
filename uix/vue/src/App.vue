@@ -26,6 +26,31 @@
     src: local('../assets/font-montserrat-thin.woff2') format("woff2"); 
   }
 
+  :root {
+    /* INDP */
+    --color-bluegrey: #b0cedc;
+    --color-dark-grey-blue: #405a74;
+    --color-silver: #cee1e6;
+    /* ECHO */
+    --color-grey-blue:    #84bcc9; /* E */
+    --color-red-brick:    #b5472f; /* C */
+    --color-pale-gold:    #e6cd56; /* H */
+    --color-hosp-green:   #a3bd31; /* O */
+    --color-almost-black: #0f0f0f;
+    --color-pale-grey:    #e8e8e8;
+    --color-ice-blue:     #c5e3ea;
+    /* SJD */
+    --color-fire-engine-red: #ff0000; /* S */
+    --color-warm-purple:     #942682; /* J */
+    --color-orange:          #ec6500; /* D */
+    /* GA4GH */
+    --color-cool-blue : #4faedc;
+    --color-bluish:     #1b75bb;
+    --color-leaf:       #8bc53f;
+    --color-mango:      #f9a533;
+    --color-coral:      #e34a3b;
+    --color-dark-lilac: #9f7ab0;
+  }
 
   body {
     background-color: #0f0f0f;
