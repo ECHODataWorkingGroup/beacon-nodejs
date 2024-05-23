@@ -16,8 +16,22 @@
   })
 
   const beaconInfoResponse = ref("Fetching The Info Now...(that's a smashing blouse, btw!)")
-  beaconInfoResponse.value  = await apiClient.fetch( '/info', {}, { auth: 'basic' } ).then(
-    (resp) => { return apiClient.parseResponse( resp ) } ).catch( (err) => { return apiClient.parseError(err) } )
+  // probably check state / store
+  beaconInfoResponse.value  = await apiClient.fetch('/info').then(
+
+    (resp) => {
+      const pResp = apiClient.parseResponse( resp )
+      // maybe some logic here...
+      return pResp
+    }
+
+  ).catch(
+
+    (err) => {
+      return apiClient.parseError(err)
+    }
+
+  )
 
 </script>
 
